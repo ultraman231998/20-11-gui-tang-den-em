@@ -118,6 +118,16 @@ h2{font-size:21px;color:#8a2442;margin:0 0 2px}
 .recap p{margin:10px 0 0;font-size:13px;color:var(--muted);line-height:1.6}
 .recap p span{font-family:var(--f-hand);font-size:19px;color:var(--rose)}
 .recap p b{color:var(--ok)}
+/* màn bìa mở thiệp */
+.cover{position:absolute;inset:0;z-index:50;display:grid;place-items:center;padding:20px;text-align:center;
+  background:radial-gradient(circle at 50% 35%,#fffaf0,#fbe6cf 70%,#f6d6b8);transition:opacity .6s,transform .6s}
+.cover.off{opacity:0;transform:scale(1.04);pointer-events:none}
+.cv-in{display:grid;justify-items:center;gap:6px;animation:in .7s cubic-bezier(.22,1,.36,1)}
+.cv-env{font-size:clamp(64px,12vw,96px);line-height:1;animation:float 2.6s ease-in-out infinite;filter:drop-shadow(0 12px 18px rgba(194,56,90,.25))}
+@keyframes float{50%{transform:translateY(-10px) rotate(-4deg)}}
+.cover small{font-size:12px;letter-spacing:.3em;font-weight:700;color:var(--rose);margin-top:6px}
+.cover h2{font-family:var(--f-hand);font-size:clamp(30px,6vw,44px);line-height:1.2;color:#8a2442;margin:0}
+.cover p{margin:4px 0 12px;font-size:14px;color:var(--muted)}
 /* lời dẫn sang game tiếp theo */
 .guide{display:flex;gap:12px;align-items:flex-start;margin-top:14px;padding:12px 14px;border-radius:14px;background:#fff7ea;border:1px dashed #e0b977;animation:in .5s .4s both}
 .guide .gi{font-size:30px;line-height:1;animation:nudge 2.6s ease-in-out infinite}
@@ -329,6 +339,15 @@ h2{font-size:21px;color:#8a2442;margin:0 0 2px}
       <div class="tb-r"><button class="mus" id="mus" aria-pressed="false" aria-label="Bật hoặc tắt nhạc nền"><b class="eq"><u></u><u></u><u></u></b><em id="muslbl">Bật nhạc</em></button><span class="tb-date">Thứ Sáu · 20.11.2026</span><button class="replay" id="replay" title="Chơi lại từ đầu">↺ <span>Chơi lại</span></button></div>
     </div>
     <div class="stage" id="stage"></div>
+    <div class="cover" id="cover">
+      <div class="cv-in">
+        <div class="cv-env" aria-hidden="true">💌</div>
+        <small>20 · 11 · 2026</small>
+        <h2>Có một ca trực đặc biệt<br>đang chờ em</h2>
+        <p>🔊 Em bật âm thanh lên nhé, có nhạc anh soạn riêng đó</p>
+        <button class="btn big" id="openCard">Chạm để mở thiệp</button>
+      </div>
+    </div>
     <div class="toast" id="toast" role="status"></div>
     <div class="ov" id="ov" aria-hidden="true">
       <div class="note" id="note"><div class="typed" id="typed"></div><div class="sign" id="sign"></div></div>
@@ -699,7 +718,11 @@ Chúc người yêu của anh một ngày 20/11 trọn vẹn niềm vui, luôn v
   }
   musBtn.addEventListener('pointerdown',e=>e.stopPropagation());
   musBtn.addEventListener('click',e=>{e.stopPropagation();if(M.on){M.userOff=true;musicOff();}else{M.userOff=false;musicOn();}});
-  document.addEventListener('pointerdown',()=>{if(!M.on&&!M.userOff&&!M.ctx)musicOn();},{once:true});
+  /* màn bìa: chạm "Mở thiệp" là bật nhạc (trình duyệt chỉ cho phát tiếng sau một lần chạm của người xem) */
+  const cover=$('#cover');
+  $('#openCard').addEventListener('click',()=>{if(!M.userOff)musicOn();cover.classList.add('off');setTimeout(()=>cover.remove(),700);});
+  // phòng hờ: nếu vì lý do gì nhạc chưa bật thì lần chạm kế tiếp sẽ bật
+  ['pointerdown','touchend','click'].forEach(ev=>document.addEventListener(ev,()=>{if(!M.on&&!M.userOff&&!M.ctx)musicOn();},{once:true}));
 
   hub();
 })();
